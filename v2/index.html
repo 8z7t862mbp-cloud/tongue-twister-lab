@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>繞口令實驗室</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f1e8;color:#202522;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}.app{max-width:760px;margin:auto;padding:20px 16px 40px}.brand{color:#d96f42;font-weight:900}.hero h1{font-size:36px;margin:14px 0 8px}.muted,.hero p{color:#858a82;line-height:1.7}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:#eee8dc;padding:5px;border-radius:16px;margin:18px 0}.tabs button,button{font:inherit;font-weight:800;border:0;border-radius:12px;padding:13px 8px;cursor:pointer;touch-action:manipulation}.tabs button{background:transparent;color:#777}.tabs .active{background:white;color:#222}.card{background:#fffdf8;border:1px solid #e5dfd4;border-radius:22px;padding:18px;margin:14px 0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.pill{background:#f5e4db;color:#b94e2c;padding:7px 12px;border-radius:20px}.prompt{text-align:center;padding:22px 0}.prompt h2{font-size:clamp(26px,7vw,36px);line-height:1.5}.prompt p{font-size:18px;line-height:1.8}.actions{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}.secondary{background:#eee9df;color:#555b54}.primary{background:#df7448;color:white}.notice{text-align:center;color:#777;font-size:14px;line-height:1.7;padding:12px 0}.manual{display:none}.manual.show{display:block}.manual input{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font:inherit;margin:8px 0}.result{display:none;background:#f3eee5;padding:14px;border-radius:15px}.result.show{display:block}.score{font-size:40px;font-weight:900;text-align:center}.metrics,.best{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric,.best>div{background:white;padding:12px;border-radius:12px}.metric small,.best small{display:block;color:#858a82}.metric strong,.best strong{font-size:22px}.history .item{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #eee}.history small{display:block;color:#858a82}audio{width:100%;margin:10px 0}.hint{font-size:12px;color:#858a82;line-height:1.7}.pick-row{margin:4px 0 12px}.pick-row label{display:block;font-size:14px;font-weight:800;color:#73786f;margin-bottom:7px}.pick-row select{width:100%;padding:13px 14px;border:1px solid #ded7cb;border-radius:12px;background:#fffdf8;color:#202522;font:inherit;}
+</style></head><body><main class="app">
+<div class="brand">TONGUE TWISTER LAB · 繞口令實驗室</div><header class="hero"><h1>今天，練得更清楚。</h1><p>選一句，先慢後快。錄音辨識若不支援，可手動輸入並評分。</p></header>
+<nav class="tabs"><button type="button" class="active" data-level="全部">全部題庫</button><button type="button" data-level="入門">入門</button><button type="button" data-level="進階">進階</button><button type="button" data-level="挑戰">挑戰</button></nav>
+<section class="card"><div class="row"><span id="counter">第 1 / 23 題</span><b class="pill" id="level">入門</b></div><div class="pick-row"><label for="questionSelect">選擇想練習的繞口令</label><select id="questionSelect" aria-label="選擇繞口令"></select></div><div class="prompt"><h2 id="title">四是四，十是十</h2><p id="text">四是四，十是十，十四是十四，四十是四十。</p></div><p class="muted" id="tip">先把「四」和「十」的舌位分開，再逐步加快。</p><div class="actions"><button type="button" class="secondary" id="next">換一句</button><button type="button" class="primary" id="record">🎙️ 開始錄音</button></div><div class="manual" id="manual"><p>請輸入你實際唸出的內容：</p><input id="spoken" placeholder="輸入練習結果"><button type="button" class="secondary" id="grade">送出評分</button></div><div id="notice" class="notice" aria-live="polite">按「開始錄音」開始練習。</div><div class="card" id="heardCard" style="display:none;margin-top:14px;background:#fff8ee;border-color:#e7c9b5"><b>📝 系統聽到的文字</b><p id="heardText" style="line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0"></p><p class="hint" style="margin-bottom:0">請先核對這裡的辨識結果；辨識錯誤時可在下方修正後重新評分。</p></div><div class="result" id="result"><div class="score" id="score">0 分</div><div class="metrics"><div class="metric"><small>文字準確度（50分）</small><strong id="accuracy">0%</strong></div><div class="metric"><small>內容完整度（20分）</small><strong id="coverage">0%</strong></div><div class="metric"><small>朗讀速度（15分）</small><strong id="speed">0 字/分</strong></div><div class="metric"><small>節奏穩定度估算（15分）</small><strong id="clarity">0%</strong></div></div><div id="rubric" style="margin-top:14px;background:#fffdf8;padding:14px;border-radius:14px"><b>本次評分明細</b><div id="rubricDetails" class="hint" style="margin-top:8px;line-height:1.9">完成錄音後顯示各項得分。</div></div><p id="transcript" class="hint"></p><div id="altTranscript" style="display:none;margin-top:12px;padding:12px;background:#fffdf8;border:1px solid #e5dfd4;border-radius:12px"><b>另一種辨識結果</b><p id="altText" style="white-space:pre-wrap;line-height:1.7"></p><button type="button" class="secondary" id="useAlt">改用這段文字評分</button></div></div></section>
+<section class="card"><div class="row"><h2>🏆 評分板</h2><button type="button" class="secondary" id="clear">清除紀錄</button></div><div class="best"><div><small>個人最高分</small><strong id="best">0</strong></div><div><small>完成挑戰</small><strong id="count">0</strong></div></div><div id="history" class="history"></div><p class="hint">成績儲存在此瀏覽器。分數依辨識文字相似度估算，並非專業聲學發音評估。</p></section>
+</main><script>
+(function(){
+const $=id=>document.getElementById(id);
+const DATA=[
+['四是四，十是十','入門','四是四，十是十，十四是十四，四十是四十。','先把四和十分開練習。'],
+['小花鼓','入門','一面小花鼓，鼓上畫老虎，老虎抓破鼓，拿塊布來補。','用穩定節拍練習鼓、虎、補。'],
+['吃葡萄不吐葡萄皮','入門','吃葡萄不吐葡萄皮，不吃葡萄倒吐葡萄皮。','注意連讀和節奏。'],
+['扁擔長，板凳寬','入門','扁擔長，板凳寬，扁擔想綁在板凳上。','注意扁與板。'],
+['栽樹','入門','東院想栽蔥，西院想栽松。是東院栽蔥，還是西院栽松。','分清「栽蔥」與「栽松」，先慢慢唸準。'],
+['蠶與蟬','入門','這是蠶，那是蟬，蠶常在葉裡藏，蟬常在林裡唱。','注意蠶、蟬的發音差異。'],
+['八百標兵奔北坡','進階','八百標兵奔北坡，北坡炮兵並排跑。','注意標兵與炮兵。'],
+['牛郎戀劉娘','進階','牛郎戀劉娘，劉娘念牛郎，牛郎年年戀劉娘。','注意牛、劉、念。'],
+['七巷一鄉','進階','七巷一鄉，八巷二鄉，七巷漆匠進八巷，八巷鄉長到七巷。','區分七、漆、巷、鄉。'],
+['紫絲線織紫獅子','進階','紫絲線織紫獅子，紫獅子吃紫柿子，紫柿子澀，紫獅子澀。','區分紫、絲、獅、柿。'],
+['紅鳳凰，粉鳳凰','進階','紅鳳凰，粉鳳凰，紅粉鳳凰花鳳凰。','短句切分。'],
+['黑化肥發灰會揮發','進階','黑化肥發灰會揮發，灰化肥發黑會揮發。','先求準確，再加速。'],
+['單槓與鋼彈','進階','單槓盪單槓，鋼彈盪鋼彈，單槓盪鋼彈。','練習單槓、鋼彈的鼻音與節奏。'],
+['瓶與盆','進階','車上有個盆，盆裡有個瓶，不知是瓶碰盆，還是盆碰瓶。','分清瓶、盆、碰的音節。'],
+['飛機與灰雞','進階','抱著灰雞上飛機，飛機起飛，灰雞要飛，飛機墜機，灰雞歸西。','先分段朗讀，再連起來加速。'],
+['石獅子澀柿子','挑戰','石獅子吃澀柿子，澀柿子澀，石獅子澀。','區分石、澀、柿。'],
+['三山撐四水','挑戰','三山撐四水，四水繞三山，三山四水春常在。','利用逗號換氣。'],
+['紅鯉魚與綠鯉魚與驢','挑戰','紅鯉魚與綠鯉魚與驢，紅鯉魚與綠鯉魚與驢。','區分紅、綠、鯉、驢。'],
+['和尚端湯上塔','挑戰','和尚端湯上塔，塔滑湯灑湯燙塔。','練習湯、塔、燙。'],
+['打南邊來個喇嘛','挑戰','打南邊來了個喇嘛，手裡提著五斤鰨目；打北邊來了個啞巴，腰裡別著喇叭。','先慢速分段。'],
+['老龍惱怒鬧老農','挑戰','老龍惱怒鬧老農，老農惱怒鬧老龍，農怒龍惱農更怒，龍惱農怒龍怕農。','注意龍、農、惱、怒。'],
+['牛郎戀劉娘進階版','挑戰','牛郎戀劉娘，劉娘念牛郎，牛郎年年戀劉娘，劉娘年年念牛郎。','保持節奏與清晰度。'],
+['初一吃素到初十','挑戰','初一吃素，初二吃素，初三吃素，初四吃素，初五吃素，初六吃素，初七吃素，初八吃素，初九吃素，初十吃素。','連續唸完十個日期，保持每個「初」字清楚，避免漏字。']
+];
+let pool=DATA.slice(),idx=0,started=0,stoppedAt=0,recorder=null,stream=null,recognition=null,parts=[],heard='',isRecording=false,recognitionSupported=!!(window.SpeechRecognition||window.webkitSpeechRecognition),recognitionEnded=false,recorderEnded=false,finishTimer=null;
+function norm(s){return String(s||'').replace(/[，。！？、；：\s]/g,'');}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function getScores(){try{return JSON.parse(localStorage.getItem('tw_history')||'[]')}catch(e){return []}}
+function draw(){const hc=$('heardCard');if(hc)hc.style.display='none';const alt=$('altTranscript');if(alt)alt.style.display='none';const d=pool[idx];$('counter').textContent='第 '+(idx+1)+' / '+pool.length+' 題';$('level').textContent=d[1];$('title').textContent=d[0];$('text').textContent=d[2];$('tip').textContent=d[3];const qs=$('questionSelect');if(qs){qs.innerHTML=pool.map((item,i)=>'<option value="'+i+'">'+(i+1)+'. '+esc(item[0])+'</option>').join('');qs.value=String(idx);} $('result').classList.remove('show');$('manual').classList.remove('show');$('spoken').value='';$('notice').textContent='按「開始錄音」開始練習。';const a=$('playback');if(a){a.pause();a.remove();}}
+function board(){const h=getScores();$('best').textContent=h.length?Math.max(...h.map(x=>x.score)):0;$('count').textContent=h.length;$('history').innerHTML=h.length?h.slice(0,15).map(x=>'<div class="item"><div><b>'+esc(x.title)+'</b><small>'+esc(x.time)+' · 準確度 '+x.accuracy+'%</small></div><b>'+x.score+' 分</b></div>').join(''):'<p class="muted">還沒有成績，完成第一題後就會顯示在這裡。</p>';}
+function sim(a,b){a=Array.from(norm(a));b=Array.from(norm(b));if(!a.length||!b.length)return 0;let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let q=[i];for(let j=1;j<=b.length;j++)q[j]=Math.min(q[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=q;}return Math.max(0,Math.round((1-p[b.length]/Math.max(a.length,b.length))*100));}
+function showHeard(t){const card=$('heardCard'),out=$('heardText');if(card&&out){out.textContent=t||'（系統沒有辨識到文字）';card.style.display='block';}}
+function grade(t){
+ t=(t||'').trim();showHeard(t);
+ if(!t){$('manual').classList.add('show');$('notice').textContent='沒有辨識到有效文字，請重新錄音。';return;}
+ const target=norm($('text').textContent),said=norm(t);
+ const coverageRaw=said.length/Math.max(1,target.length);
+ const repeatChar=/(.)\\1{4,}/u.test(said),longRepeat=/(.{2,8})\\1{3,}/u.test(said);
+ if(said.length<3||coverageRaw<0.25||said.length>Math.max(target.length*1.8,target.length+10)||repeatChar||longRepeat){
+  $('result').classList.remove('show');$('manual').classList.add('show');
+  $('notice').textContent='辨識文字過短或異常，暫不計分。可修正下方文字後再評分。';
+  $('transcript').textContent='辨識結果（未計分）：'+t.slice(0,220)+(t.length>220?'…':'');$('spoken').value=t;return;
+ }
+ if(!started)started=Date.now();
+ const elapsed=Math.max(1,((stoppedAt||Date.now())-started)/1000);
+ const cover=Math.min(100,Math.round(Math.min(1,coverageRaw)*100));
+ const acc=sim(target,said);
+ const speed=Math.round(said.length/elapsed*60);
+ // Rubric: transcript comparison and duration only. It cannot measure actual phoneme quality.
+ const accuracyPts=Math.round(acc*0.50);
+ const coveragePts=Math.round(cover*0.20);
+ const pacePct=Math.max(0,Math.min(100,Math.round(100-Math.abs(speed-180)/2.4)));
+ const pacePts=Math.round(pacePct*0.15);
+ const rhythmPct=Math.max(0,Math.min(100,Math.round(100-(Math.abs(coverageRaw-1)*100)*0.7)));
+ const rhythmPts=Math.round(rhythmPct*0.15);
+ const total=Math.min(100,accuracyPts+coveragePts+pacePts+rhythmPts);
+ $('score').textContent=total+' 分';$('accuracy').textContent=acc+'%（'+accuracyPts+'/50）';$('coverage').textContent=cover+'%（'+coveragePts+'/20）';$('speed').textContent=speed+' 字/分（'+pacePts+'/15）';$('clarity').textContent=rhythmPct+'%（'+rhythmPts+'/15）';
+ $('rubricDetails').innerHTML='<div><b>1. 文字準確度：'+accuracyPts+'/50 分</b> — 與題目文字比對，錯字、漏字或順序不同會扣分。</div><div><b>2. 內容完整度：'+coveragePts+'/20 分</b> — 依辨識文字長度與題目長度計算，唸得越完整分數越高。</div><div><b>3. 朗讀速度：'+pacePts+'/15 分</b> — 以每分鐘字數估算，約 180 字/分為本程式的參考中心，太慢或太快會扣分。</div><div><b>4. 長度／節奏穩定估算：'+rhythmPts+'/15 分</b> — 依辨識文字長度是否接近題目估算，並非真正的聲學節奏檢測。</div><div><b>總分：'+total+'/100 分</b></div><div style="margin-top:8px"><b>分數解讀</b>：90–100 優秀；80–89 良好；70–79 尚可；60–69 需加強；0–59 建議放慢速度重練。</div>';
+ $('transcript').textContent='系統辨識內容：'+t+'。注意：目前評分根據語音轉文字與錄音時間估算，不能直接判斷每個字的聲調、咬字或實際發音品質。';
+ $('result').classList.add('show');$('notice').textContent='評分完成。各項分數與評分標準已列出。';
+ const h=getScores();h.unshift({title:$('title').textContent,score:total,accuracy:acc,time:new Date().toLocaleString('zh-TW')});try{localStorage.setItem('tw_history',JSON.stringify(h.slice(0,50)))}catch(e){}board();
+}
+function cleanup(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}recorder=null;isRecording=false;$('record').disabled=false;$('record').textContent='🎙️ 開始錄音';}
+function manual(msg){$('manual').classList.add('show');$('notice').textContent=msg;}
+function stop(){ stoppedAt=Date.now();try{if(nativeRecognition)nativeRecognition.stop();}catch(e){}$('record').disabled=true;$('notice').textContent='錄音結束，準備進行裝置端中文語音辨識…';try{if(recorder&&recorder.state!=='inactive')recorder.stop();else cleanup()}catch(e){cleanup();$('notice').textContent='停止錄音失敗，請再試一次。';}}
+let whisperPipeline=null,whisperLoading=null,nativeText='',nativeRecognition=null,nativeAvailable=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+async function getWhisper(){if(whisperPipeline)return whisperPipeline;if(whisperLoading)return whisperLoading;whisperLoading=(async()=>{$('notice').textContent='首次使用需下載較完整的中文辨識模型（下載時間較長），請保持網路並稍候…';const lib=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');
+// Use the compatible single-thread WASM path on iOS Safari/GitHub Pages.
+try{lib.env.backends.onnx.wasm.numThreads=1;lib.env.backends.onnx.wasm.proxy=false;}catch(e){}
+whisperPipeline=await lib.pipeline('automatic-speech-recognition','Xenova/whisper-base',{dtype:'q8',progress_callback:p=>{if(!p)return;if(p.status==='progress'&&p.total)$('notice').textContent='正在下載中文辨識模型 '+Math.round(p.loaded/p.total*100)+'%…';else if(p.status==='initiate')$('notice').textContent='正在初始化語音辨識模型…';}});return whisperPipeline;})();try{return await whisperLoading}catch(e){whisperLoading=null;throw e;}}
+async function transcribeRecordedBlob(blob){
+ if(!blob||blob.size<1000)throw new Error('錄音太短或沒有錄到聲音。');
+ $('record').disabled=true;$('record').textContent='辨識中…';$('notice').textContent='正在載入裝置端中文辨識模型…';
+ const transcriber=await getWhisper();$('notice').textContent='模型已載入，正在處理完整錄音…';
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('此瀏覽器無法解碼錄音。');
+ const ctx=new AC();
+ try{
+  const audio=await ctx.decodeAudioData(await blob.arrayBuffer());
+  const mono=new Float32Array(audio.length);
+  for(let i=0;i<mono.length;i++){let v=0;for(let ch=0;ch<audio.numberOfChannels;ch++)v+=audio.getChannelData(ch)[i];mono[i]=v/audio.numberOfChannels;}
+  // Trim leading/trailing silence, but preserve a small margin.
+  let peak=0;for(let i=0;i<mono.length;i++)peak=Math.max(peak,Math.abs(mono[i]));
+  if(peak<0.008)throw new Error('錄音音量太低，沒有足夠清楚的聲音。請確認麥克風後再試。');
+  // A lower gate prevents quiet initial/final Mandarin syllables from being clipped.
+  const threshold=Math.max(0.002,peak*0.015),windowSize=Math.max(1,Math.floor(audio.sampleRate*0.020));
+  let first=-1,last=-1;
+  for(let i=0;i<mono.length;i+=windowSize){let energy=0;for(let k=i;k<Math.min(mono.length,i+windowSize);k++)energy=Math.max(energy,Math.abs(mono[k]));if(energy>threshold){if(first<0)first=i;last=Math.min(mono.length,i+windowSize);}}
+  if(first<0||last-first<audio.sampleRate*0.35)throw new Error('沒有偵測到足夠長的語音，請靠近麥克風再唸一次。');
+  const margin=Math.floor(audio.sampleRate*0.60),from=Math.max(0,first-margin),to=Math.min(mono.length,last+margin);
+  let voiced=mono.slice(from,to);
+  // Normalize speech volume before inference, without amplifying quiet noise excessively.
+  let voicedPeak=0;for(let i=0;i<voiced.length;i++)voicedPeak=Math.max(voicedPeak,Math.abs(voiced[i]));
+  if(voicedPeak>0.0001){const gain=Math.min(8,0.85/voicedPeak);for(let i=0;i<voiced.length;i++)voiced[i]=Math.max(-1,Math.min(1,voiced[i]*gain));}
+  let samples=voiced;
+  if(audio.sampleRate!==16000){
+   const n=Math.floor(voiced.length*16000/audio.sampleRate),out=new Float32Array(n),ratio=audio.sampleRate/16000;
+   for(let i=0;i<n;i++){const p=i*ratio,l=Math.floor(p),f=p-l;out[i]=voiced[Math.min(l,voiced.length-1)]*(1-f)+voiced[Math.min(l+1,voiced.length-1)]*f;}samples=out;
+  }
+  $('notice').textContent='已擷取語音 '+(voiced.length/audio.sampleRate).toFixed(1)+' 秒，正在辨識…';
+  $('notice').textContent='第一輪辨識中…';
+  let result=await transcriber(samples,{language:'chinese',task:'transcribe',num_beams:3,condition_on_previous_tokens:false,return_timestamps:false});
+  let text=String(result&&result.text||'').trim();
+  // If trimming produced only a fragment, retry once with the entire recording.
+  // This protects soft first/last syllables and catches over-aggressive VAD trimming.
+  const expectedLen=norm($('text').textContent).length;
+  if(norm(text).length<Math.max(3,expectedLen*0.45)){
+   $('notice').textContent='第一次只辨識到部分文字，正在用完整錄音重新辨識…';
+   let full=mono.slice();
+   let fullPeak=0;for(let i=0;i<full.length;i++)fullPeak=Math.max(fullPeak,Math.abs(full[i]));
+   if(fullPeak>0.0001){const gain=Math.min(6,0.8/fullPeak);for(let i=0;i<full.length;i++)full[i]=Math.max(-1,Math.min(1,full[i]*gain));}
+   let fullSamples=full;
+   if(audio.sampleRate!==16000){const n=Math.floor(full.length*16000/audio.sampleRate),out=new Float32Array(n),ratio=audio.sampleRate/16000;for(let i=0;i<n;i++){const p=i*ratio,l=Math.floor(p),frac=p-l;out[i]=full[Math.min(l,full.length-1)]*(1-frac)+full[Math.min(l+1,full.length-1)]*frac;}fullSamples=out;}
+   result=await transcriber(fullSamples,{language:'zh',task:'transcribe',num_beams:5,condition_on_previous_tokens:false,return_timestamps:false});
+   text=String(result&&result.text||'').trim();
+  }
+  if(!text)throw new Error('模型沒有辨識出文字，請再試一次。');
+  const normalized=norm(text);
+  if(/(.)\1{4,}/u.test(normalized)||/(.{2,8})\1{3,}/u.test(normalized))throw new Error('模型把聲音誤判成重複文字；本次不計分，請重新錄音並避免長時間停頓。');
+  return text;
+ }finally{try{await ctx.close()}catch(e){}}
+}
+async function finishAfterRecognition(blob){
+ try{
+  // Avoid loading the large Whisper WASM model automatically on iPhone:
+  // Safari may terminate/reload the page under memory pressure.
+  // Use live browser recognition, then leave the transcript editable if unavailable.
+  await new Promise(resolve=>setTimeout(resolve,700));
+  const native=nativeText.trim();
+  const target=norm($('text').textContent);
+  if(native){
+   showHeard(native);$('spoken').value=native;
+   const accuracy=sim(target,norm(native));
+   if(accuracy<25){
+    $('manual').classList.add('show');
+    $('notice').textContent='手機辨識文字與題目差異太大，先不自動評分。請核對下方文字，修正後按「送出評分」。';
+    $('transcript').textContent='辨識文字相似度：'+accuracy+'%。';
+   }else{
+    $('notice').textContent='已取得手機語音辨識文字，正在評分…';
+    grade(native);
+   }
+   return;
+  }
+  showHeard('手機沒有回傳可用的辨識文字。');
+  $('manual').classList.add('show');
+  $('notice').textContent='錄音已完成，但手機語音辨識沒有回傳文字。為避免頁面再次重載，本次不自動載入大型模型；請確認下方錄音回放，並輸入或修正辨識文字後按「送出評分」。';
+  $('transcript').textContent='錄音已保留，可使用下方欄位手動輸入辨識內容。';
+ }catch(e){
+  showHeard('辨識處理發生錯誤，錄音可能仍可回放。');
+  $('manual').classList.add('show');
+  $('notice').textContent='辨識處理失敗：'+(e&&e.message?e.message:'未知錯誤')+'。請使用下方欄位修正文字後評分。';
+ }finally{$('record').disabled=false;$('record').textContent='🎙️ 開始錄音';isRecording=false;}
+}
+$('next').addEventListener('click',()=>{if(isRecording)stop();if(pool.length>1){let n=idx;while(n===idx)n=Math.floor(Math.random()*pool.length);idx=n;}draw();});$('questionSelect').addEventListener('change',e=>{if(isRecording)stop();idx=Number(e.target.value)||0;draw();});
+$('record').addEventListener('click',async()=>{if(isRecording){stop();return;}if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){$('notice').textContent='此瀏覽器無法錄音。請確認 HTTPS 與麥克風權限。';return;}parts=[];heard='';nativeText='';started=Date.now();stoppedAt=0;$('result').classList.remove('show');$('manual').classList.remove('show');$('record').disabled=true;$('notice').textContent='請允許使用麥克風…';try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});let type='';['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg'].some(t=>{if(MediaRecorder.isTypeSupported(t)){type=t;return true;}return false;});recorder=type?new MediaRecorder(stream,{mimeType:type}):new MediaRecorder(stream);recorder.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};recorder.onerror=()=>{cleanup();$('notice').textContent='錄音發生錯誤，請再試一次。'};recorder.onstop=()=>{const blob=new Blob(parts,{type:type||'audio/mp4'});cleanup();if(blob.size){const old=$('playback');if(old)old.remove();const audio=document.createElement('audio');audio.id='playback';audio.controls=true;audio.src=URL.createObjectURL(blob);$('manual').prepend(audio);}finishAfterRecognition(blob);};if(nativeAvailable){try{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;nativeRecognition=new SR();nativeRecognition.lang='zh-TW';nativeRecognition.continuous=true;nativeRecognition.interimResults=true;nativeRecognition.onresult=e=>{let out='';for(let i=0;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)out+=r[0].transcript;}if(out.trim())nativeText=out.trim();};nativeRecognition.onerror=()=>{};nativeRecognition.start();}catch(e){nativeRecognition=null;}}recorder.start(250);isRecording=true;$('record').disabled=false;$('record').textContent='⏹️ 停止錄音';$('notice').textContent='正在錄音。唸完後按停止，系統會在本機辨識並自動評分。';}catch(e){cleanup();$('notice').textContent='無法開啟麥克風：'+(e&&e.message?e.message:'請確認權限設定')+'。';}});
+$('grade').addEventListener('click',()=>grade($('spoken').value));$('useAlt').addEventListener('click',()=>{const raw=$('altText').textContent.replace(/^(Whisper 本機模型：|手機語音辨識：)/,'');$('spoken').value=raw;showHeard(raw);grade(raw);$('notice').textContent='已改用另一種辨識結果評分。';});
+$('clear').addEventListener('click',()=>{if(!confirm('確定清除所有評分紀錄？'))return;try{localStorage.removeItem('tw_history')}catch(e){}board();$('notice').textContent='評分紀錄已清除。';});
+document.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>{if(isRecording)stop();pool=b.dataset.level==='全部'?DATA.slice():DATA.filter(d=>d[1]===b.dataset.level);idx=0;document.querySelectorAll('[data-level]').forEach(x=>x.classList.toggle('active',x===b));draw();}));
+draw();board();
+})();
+</script></body></html>
