@@ -39,42 +39,13 @@ function sim(a,b){a=Array.from(norm(a));b=Array.from(norm(b));if(!a.length||!b.l
 function grade(t){t=(t||'').trim();if(!t){$('manual').classList.add('show');$('notice').textContent='請先輸入你唸出的內容。';return;}if(!started)started=Date.now();const target=norm($('text').textContent),said=norm(t),cover=Math.min(100,Math.round(said.length/Math.max(1,target.length)*100)),acc=Math.round(sim(target,said)*.75+cover*.25),speed=Math.round(said.length/Math.max(1,(Date.now()-started)/1000)*60),clarity=Math.round(acc*.75+cover*.25),total=Math.round(acc*.6+Math.min(100,speed/3)*.1+clarity*.3);$('score').textContent=total+' 分';$('accuracy').textContent=acc+'%';$('coverage').textContent=cover+'%';$('speed').textContent=speed+' 字/分';$('clarity').textContent=clarity+'%';$('transcript').textContent='辨識／輸入內容：'+t;$('result').classList.add('show');$('notice').textContent='評分完成。此分數是文字比對估算。';const h=getScores();h.unshift({title:$('title').textContent,score:total,accuracy:acc,time:new Date().toLocaleString('zh-TW')});try{localStorage.setItem('tw_history',JSON.stringify(h.slice(0,50)))}catch(e){}board();}
 function cleanup(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}recorder=null;isRecording=false;$('record').disabled=false;$('record').textContent='🎙️ 開始錄音';}
 function manual(msg){$('manual').classList.add('show');$('notice').textContent=msg;}
-function stop(){
-  $('record').disabled=true;
-  $('notice').textContent='正在完成語音辨識…';
-  try{if(recognition)recognition.stop()}catch(e){}
-  try{if(recorder&&recorder.state!=='inactive')recorder.stop();else cleanup()}
-  catch(e){cleanup();$('notice').textContent='停止錄音失敗，請再試一次。';}
-}
-async function finishAfterRecognition(blob){
-  if(finishTimer)clearTimeout(finishTimer);
-  if(recognitionDone){
-    await Promise.race([recognitionDone,new Promise(resolve=>{finishTimer=setTimeout(resolve,6000);})]);
-  }
-  if(finishTimer){clearTimeout(finishTimer);finishTimer=null;}
-  if(heard){
-    $('spoken').value=heard;
-    $('manual').classList.remove('show');
-    grade(heard);
-  }else if(blob&&blob.size){
-    $('manual').classList.remove('show');
-    $('notice').textContent='錄音完成，但這個瀏覽器沒有回傳中文辨識文字。請在 Safari 開啟本頁再試；若仍失敗，表示此裝置的瀏覽器語音辨識不支援，不能只靠錄音檔自動評分。';
-  }else{
-    $('notice').textContent='沒有錄到音訊，請再試一次。';
-  }
-}
+function stop(){ $('record').disabled=true;$('notice').textContent='錄音結束，準備進行裝置端中文語音辨識…';try{if(recorder&&recorder.state!=='inactive')recorder.stop();else cleanup()}catch(e){cleanup();$('notice').textContent='停止錄音失敗，請再試一次。';}}
+let whisperPipeline=null,whisperLoading=null;
+async function getWhisper(){if(whisperPipeline)return whisperPipeline;if(whisperLoading)return whisperLoading;whisperLoading=(async()=>{$('notice').textContent='首次使用需下載中文辨識模型，請保持網路並稍候…';const lib=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');whisperPipeline=await lib.pipeline('automatic-speech-recognition','Xenova/whisper-tiny',{dtype:'q8',progress_callback:p=>{if(p&&p.status==='progress'&&p.total)$('notice').textContent='正在下載辨識模型 '+Math.round(p.loaded/p.total*100)+'%…';}});return whisperPipeline;})();try{return await whisperLoading}catch(e){whisperLoading=null;throw e;}}
+async function transcribeRecordedBlob(blob){if(!blob||blob.size<1000)throw new Error('錄音太短或沒有錄到聲音。');$('record').disabled=true;$('record').textContent='辨識中…';$('notice').textContent='正在載入裝置端中文辨識模型…';const transcriber=await getWhisper();$('notice').textContent='模型已載入，正在辨識錄音…';const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('此瀏覽器無法解碼錄音。');const ctx=new AC();try{const audio=await ctx.decodeAudioData(await blob.arrayBuffer()),mono=new Float32Array(audio.length);for(let i=0;i<mono.length;i++){let v=0;for(let c=0;c<audio.numberOfChannels;c++)v+=audio.getChannelData(c)[i];mono[i]=v/audio.numberOfChannels;}let samples=mono;if(audio.sampleRate!==16000){const n=Math.floor(mono.length*16000/audio.sampleRate),out=new Float32Array(n),ratio=audio.sampleRate/16000;for(let i=0;i<n;i++){const p=i*ratio,l=Math.floor(p),f=p-l;out[i]=mono[Math.min(l,mono.length-1)]*(1-f)+mono[Math.min(l+1,mono.length-1)]*f;}samples=out;}const result=await transcriber(samples,{language:'chinese',task:'transcribe'}),text=String(result&&result.text||'').trim();if(!text)throw new Error('模型沒有辨識出文字，請再試一次。');return text;}finally{try{await ctx.close()}catch(e){}}}
+async function finishAfterRecognition(blob){try{const t=await transcribeRecordedBlob(blob);$('manual').classList.remove('show');$('spoken').value=t;$('notice').textContent='辨識完成，正在自動評分…';grade(t);}catch(e){$('manual').classList.remove('show');$('notice').textContent='自動辨識失敗：'+(e&&e.message?e.message:'模型載入或辨識錯誤')+'。請確認網路後重試。';}finally{$('record').disabled=false;$('record').textContent='🎙️ 開始錄音';isRecording=false;}}
 $('next').addEventListener('click',()=>{if(isRecording)stop();if(pool.length>1){let n=idx;while(n===idx)n=Math.floor(Math.random()*pool.length);idx=n;}draw();});
-$('record').addEventListener('click',async()=>{
-if(isRecording){$('record').disabled=true;$('notice').textContent='正在整理錄音…';stop();return;}
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR){$('manual').classList.remove('show');$('notice').textContent='目前開啟頁面的內嵌瀏覽器不支援自動語音辨識，因此不會開始一段無法自動評分的錄音。請點右下角指南針圖示，在 Safari 開啟本頁後再試。';return;}
-if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){manual('目前瀏覽器無法錄音。請點右下角指南針圖示，在 Safari 開啟本頁後再試。');return;}
-parts=[];heard='';started=Date.now();$('result').classList.remove('show');$('record').disabled=true;$('notice').textContent='請允許麥克風權限…';
-try{stream=await navigator.mediaDevices.getUserMedia({audio:true});let type='';['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg'].some(t=>{if(MediaRecorder.isTypeSupported(t)){type=t;return true;}return false;});recorder=type?new MediaRecorder(stream,{mimeType:type}):new MediaRecorder(stream);recorder.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};recorder.onerror=()=>{cleanup();manual('錄音錯誤，請再試一次或手動輸入。')};recorder.onstop=()=>{const blob=new Blob(parts,{type:type||'audio/mp4'});recorderEnded=true;cleanup();if(blob.size){const old=$('playback');if(old)old.remove();const audio=document.createElement('audio');audio.id='playback';audio.controls=true;audio.src=URL.createObjectURL(blob);$('manual').prepend(audio);}finishAfterRecognition(blob);};recorder.start(250);
-try{recognitionDone=new Promise(resolve=>{recognitionDoneResolve=resolve;});recognition=new SR();recognition.lang='zh-TW';recognition.continuous=false;recognition.interimResults=false;recognition.onresult=e=>{let s='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i][0]&&e.results[i][0].transcript)s+=e.results[i][0].transcript;}if(s.trim()){heard=s.trim();$('spoken').value=heard;$('notice').textContent='辨識完成，正在計算分數…';}};recognition.onerror=e=>{$('notice').textContent='語音辨識未成功（'+(e.error||'unknown')+'），正在確認結果…';};recognition.onend=()=>{recognitionEnded=true;if(recognitionDoneResolve)recognitionDoneResolve();};recognition.start()}catch(e){recognition=null;throw e;}
-isRecording=true;$('record').disabled=false;$('record').textContent='⏹️ 停止錄音';$('notice').textContent=recognitionSupported?'正在錄音並辨識語音，唸完按「停止錄音」，系統會自動評分。':'此瀏覽器沒有提供語音辨識功能；錄音可保存，但無法自動轉文字。請在 Safari 開啟本頁再試。';
-}catch(e){cleanup();manual('無法開啟麥克風。請使用 HTTPS 網址並允許麥克風，或手動輸入評分。');}
-});
+$('record').addEventListener('click',async()=>{if(isRecording){stop();return;}if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){$('notice').textContent='此瀏覽器無法錄音。請確認 HTTPS 與麥克風權限。';return;}parts=[];heard='';started=Date.now();$('result').classList.remove('show');$('manual').classList.remove('show');$('record').disabled=true;$('notice').textContent='請允許使用麥克風…';try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});let type='';['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg'].some(t=>{if(MediaRecorder.isTypeSupported(t)){type=t;return true;}return false;});recorder=type?new MediaRecorder(stream,{mimeType:type}):new MediaRecorder(stream);recorder.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};recorder.onerror=()=>{cleanup();$('notice').textContent='錄音發生錯誤，請再試一次。'};recorder.onstop=()=>{const blob=new Blob(parts,{type:type||'audio/mp4'});cleanup();if(blob.size){const old=$('playback');if(old)old.remove();const audio=document.createElement('audio');audio.id='playback';audio.controls=true;audio.src=URL.createObjectURL(blob);$('manual').prepend(audio);}finishAfterRecognition(blob);};recorder.start(250);isRecording=true;$('record').disabled=false;$('record').textContent='⏹️ 停止錄音';$('notice').textContent='正在錄音。唸完後按停止，系統會在本機辨識並自動評分。';}catch(e){cleanup();$('notice').textContent='無法開啟麥克風：'+(e&&e.message?e.message:'請確認權限設定')+'。';}});
 $('grade').addEventListener('click',()=>grade($('spoken').value));
 $('clear').addEventListener('click',()=>{if(!confirm('確定清除所有評分紀錄？'))return;try{localStorage.removeItem('tw_history')}catch(e){}board();$('notice').textContent='評分紀錄已清除。';});
 document.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>{if(isRecording)stop();pool=b.dataset.level==='全部'?DATA.slice():DATA.filter(d=>d[1]===b.dataset.level);idx=0;document.querySelectorAll('[data-level]').forEach(x=>x.classList.toggle('active',x===b));draw();}));
