@@ -5,7 +5,7 @@
 </style></head><body><main class="app">
 <div class="brand">TONGUE TWISTER LAB · 繞口令實驗室</div><header class="hero"><h1>今天，練得更清楚。</h1><p>選一句，先慢後快。錄音辨識若不支援，可手動輸入並評分。</p></header>
 <nav class="tabs"><button type="button" class="active" data-level="全部">全部題庫</button><button type="button" data-level="入門">入門</button><button type="button" data-level="進階">進階</button><button type="button" data-level="挑戰">挑戰</button></nav>
-<section class="card"><div class="row"><span id="counter">第 1 / 23 題</span><b class="pill" id="level">入門</b></div><div class="pick-row"><label for="questionSelect">選擇想練習的繞口令</label><select id="questionSelect" aria-label="選擇繞口令"></select></div><div class="prompt"><h2 id="title">四是四，十是十</h2><p id="text">四是四，十是十，十四是十四，四十是四十。</p></div><p class="muted" id="tip">先把「四」和「十」的舌位分開，再逐步加快。</p><div class="actions"><button type="button" class="secondary" id="next">換一句</button><button type="button" class="primary" id="record">🎙️ 開始錄音</button></div><div class="manual" id="manual"><p>請輸入你實際唸出的內容：</p><input id="spoken" placeholder="輸入練習結果"><button type="button" class="secondary" id="grade">送出評分</button></div><div id="notice" class="notice" aria-live="polite">按「開始錄音」開始練習。</div><div class="card" id="heardCard" style="display:none;margin-top:14px;background:#fff8ee;border-color:#e7c9b5"><b>📝 系統聽到的文字</b><p id="heardText" style="line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0"></p><p class="hint" style="margin-bottom:0">請先核對這裡的辨識結果；辨識錯誤時可在下方修正後重新評分。</p></div><div class="result" id="result"><div class="score" id="score">0 分</div><div class="metrics"><div class="metric"><small>文字準確度（50分）</small><strong id="accuracy">0%</strong></div><div class="metric"><small>內容完整度（20分）</small><strong id="coverage">0%</strong></div><div class="metric"><small>朗讀速度（15分）</small><strong id="speed">0 字/分</strong></div><div class="metric"><small>節奏穩定度估算（15分）</small><strong id="clarity">0%</strong></div></div><div id="rubric" style="margin-top:14px;background:#fffdf8;padding:14px;border-radius:14px"><b>本次評分明細</b><div id="rubricDetails" class="hint" style="margin-top:8px;line-height:1.9">完成錄音後顯示各項得分。</div></div><p id="transcript" class="hint"></p><div id="altTranscript" style="display:none;margin-top:12px;padding:12px;background:#fffdf8;border:1px solid #e5dfd4;border-radius:12px"><b>另一種辨識結果</b><p id="altText" style="white-space:pre-wrap;line-height:1.7"></p><button type="button" class="secondary" id="useAlt">改用這段文字評分</button></div></div></section>
+<section class="card"><div class="row"><span id="counter">第 1 / 23 題</span><b class="pill" id="level">入門</b></div><div class="pick-row"><label for="questionSelect">選擇想練習的繞口令</label><select id="questionSelect" aria-label="選擇繞口令"></select></div><div class="prompt"><h2 id="title">四是四，十是十</h2><p id="text">四是四，十是十，十四是十四，四十是四十。</p></div><p class="muted" id="tip">先把「四」和「十」的舌位分開，再逐步加快。</p><div class="actions"><button type="button" class="secondary" id="next">換一句</button><button type="button" class="primary" id="record">🎙️ 開始錄音</button></div><div class="manual" id="manual"><p>請輸入你實際唸出的內容：</p><input id="spoken" placeholder="輸入練習結果"><button type="button" class="secondary" id="grade">送出評分</button></div><div id="notice" class="notice" aria-live="polite">按「開始錄音」開始練習。</div><div class="card" id="heardCard" style="display:none;margin-top:14px;background:#fff8ee;border-color:#e7c9b5"><b>📝 系統聽到的文字</b><p id="heardText" style="line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0"></p><p class="hint" style="margin-bottom:0">請先核對這裡的辨識結果；辨識錯誤時可在下方修正後重新評分。</p></div><div class="result" id="result"><div class="score" id="score">0 分</div><div class="metrics"><div class="metric"><small>文字準確度（50分）</small><strong id="accuracy">0%</strong></div><div class="metric"><small>關鍵詞命中率（20分）</small><strong id="keyHit">0%</strong></div><div class="metric"><small>朗讀速度（15分）</small><strong id="speed">0 字/分</strong></div><div class="metric"><small>節奏穩定度估算（15分）</small><strong id="clarity">0%</strong></div></div><div id="rubric" style="margin-top:14px;background:#fffdf8;padding:14px;border-radius:14px"><b>本次評分明細</b><div id="rubricDetails" class="hint" style="margin-top:8px;line-height:1.9">完成錄音後顯示各項得分。</div></div><p id="transcript" class="hint"></p><div id="altTranscript" style="display:none;margin-top:12px;padding:12px;background:#fffdf8;border:1px solid #e5dfd4;border-radius:12px"><b>另一種辨識結果</b><p id="altText" style="white-space:pre-wrap;line-height:1.7"></p><button type="button" class="secondary" id="useAlt">改用這段文字評分</button></div></div></section>
 <section class="card"><div class="row"><h2>🏆 評分板</h2><button type="button" class="secondary" id="clear">清除紀錄</button></div><div class="best"><div><small>個人最高分</small><strong id="best">0</strong></div><div><small>完成挑戰</small><strong id="count">0</strong></div></div><div id="history" class="history"></div><p class="hint">成績儲存在此瀏覽器。分數依辨識文字相似度估算，並非專業聲學發音評估。</p></section>
 </main><script>
 (function(){
@@ -19,6 +19,7 @@ const DATA=[
 ['蠶與蟬','入門','這是蠶，那是蟬，蠶常在葉裡藏，蟬常在林裡唱。','注意蠶、蟬的發音差異。'],
 ['老龍與老農','入門','老龍惱怒鬧老農，老農惱怒鬧老龍。農怒龍惱農更怒，龍惱農怒龍怕農。','注意「龍、農、惱、怒」的聲調與連續切換。'],
 ['南港展覽館','入門','南港展覽館館長晚上到南港展覽館導覽展覽館。','注意「南港、展覽館、館長、導覽」的連續發音，先慢慢唸清楚。'],
+['和尚端湯上塔','入門','和尚端湯上塔，塔滑湯灑湯燙塔。','先把「湯、塔、滑、灑、燙」分開唸清楚，再逐步加快。'],
 ['八百標兵奔北坡','進階','八百標兵奔北坡，北坡炮兵並排跑。','注意標兵與炮兵。'],
 ['牛郎戀劉娘','進階','牛郎戀劉娘，劉娘念牛郎，牛郎年年戀劉娘。','注意牛、劉、念。'],
 ['七巷一鄉','進階','七巷一鄉，八巷二鄉，七巷漆匠進八巷，八巷鄉長到七巷。','區分七、漆、巷、鄉。'],
@@ -31,7 +32,7 @@ const DATA=[
 ['石獅子澀柿子','挑戰','石獅子吃澀柿子，澀柿子澀，石獅子澀。','區分石、澀、柿。'],
 ['三山撐四水','挑戰','三山撐四水，四水繞三山，三山四水春常在。','利用逗號換氣。'],
 ['紅鯉魚與綠鯉魚與驢','挑戰','紅鯉魚與綠鯉魚與驢，紅鯉魚與綠鯉魚與驢。','區分紅、綠、鯉、驢。'],
-['和尚端湯上塔','挑戰','和尚端湯上塔，塔滑湯灑湯燙塔。','練習湯、塔、燙。'],
+
 ['打南邊來個喇嘛','挑戰','打南邊來了個喇嘛，手裡提著五斤鰨目；打北邊來了個啞巴，腰裡別著喇叭。','先慢速分段。'],
 ['老龍惱怒鬧老農','挑戰','老龍惱怒鬧老農，老農惱怒鬧老龍，農怒龍惱農更怒，龍惱農怒龍怕農。','注意龍、農、惱、怒。'],
 ['牛郎戀劉娘進階版','挑戰','牛郎戀劉娘，劉娘念牛郎，牛郎年年戀劉娘，劉娘年年念牛郎。','保持節奏與清晰度。'],
@@ -59,19 +60,20 @@ function grade(t){
  }
  if(!started)started=Date.now();
  const elapsed=Math.max(1,((stoppedAt||Date.now())-started)/1000);
- const cover=Math.min(100,Math.round(Math.min(1,coverageRaw)*100));
+ const keyChunks=[...new Set(Array.from({length:Math.max(0,target.length-1)},(_,i)=>i).filter(i=>i%3===0).map(i=>target.slice(i,i+2)).filter(x=>x.length===2))];
+ const keyHitPct=keyChunks.length?Math.round(keyChunks.filter(x=>said.includes(x)).length/keyChunks.length*100):0;
  const acc=sim(target,said);
  const speed=Math.round(said.length/elapsed*60);
  // Rubric: transcript comparison and duration only. It cannot measure actual phoneme quality.
  const accuracyPts=Math.round(acc*0.50);
- const coveragePts=Math.round(cover*0.20);
+ const keyHitPts=Math.round(keyHitPct*0.20);
  const pacePct=Math.max(0,Math.min(100,Math.round(100-Math.abs(speed-180)/2.4)));
  const pacePts=Math.round(pacePct*0.15);
  const rhythmPct=Math.max(0,Math.min(100,Math.round(100-(Math.abs(coverageRaw-1)*100)*0.7)));
  const rhythmPts=Math.round(rhythmPct*0.15);
- const total=Math.min(100,accuracyPts+coveragePts+pacePts+rhythmPts);
- $('score').textContent=total+' 分';$('accuracy').textContent=acc+'%（'+accuracyPts+'/50）';$('coverage').textContent=cover+'%（'+coveragePts+'/20）';$('speed').textContent=speed+' 字/分（'+pacePts+'/15）';$('clarity').textContent=rhythmPct+'%（'+rhythmPts+'/15）';
- $('rubricDetails').innerHTML='<div><b>1. 文字準確度：'+accuracyPts+'/50 分</b> — 與題目文字比對，錯字、漏字或順序不同會扣分。</div><div><b>2. 內容完整度：'+coveragePts+'/20 分</b> — 依辨識文字長度與題目長度計算，唸得越完整分數越高。</div><div><b>3. 朗讀速度：'+pacePts+'/15 分</b> — 以每分鐘字數估算，約 180 字/分為本程式的參考中心，太慢或太快會扣分。</div><div><b>4. 長度／節奏穩定估算：'+rhythmPts+'/15 分</b> — 依辨識文字長度是否接近題目估算，並非真正的聲學節奏檢測。</div><div><b>總分：'+total+'/100 分</b></div><div style="margin-top:8px"><b>分數解讀</b>：90–100 優秀；80–89 良好；70–79 尚可；60–69 需加強；0–59 建議放慢速度重練。</div>';
+ const total=Math.min(100,accuracyPts+keyHitPts+pacePts+rhythmPts);
+ $('score').textContent=total+' 分';$('accuracy').textContent=acc+'%（'+accuracyPts+'/50）';$('keyHit').textContent=keyHitPct+'%（'+keyHitPts+'/20）';$('speed').textContent=speed+' 字/分（'+pacePts+'/15）';$('clarity').textContent=rhythmPct+'%（'+rhythmPts+'/15）';
+ $('rubricDetails').innerHTML='<div><b>1. 文字準確度：'+accuracyPts+'/50 分</b> — 與題目文字比對，錯字、漏字或順序不同會扣分。</div><div><b>2. 關鍵詞命中率：'+keyHitPts+'/20 分</b> — 以題目中的連續雙字詞作為檢查點，計算辨識結果命中的比例。</div><div><b>3. 朗讀速度：'+pacePts+'/15 分</b> — 以每分鐘字數估算，約 180 字/分為本程式的參考中心，太慢或太快會扣分。</div><div><b>4. 長度／節奏穩定估算：'+rhythmPts+'/15 分</b> — 依辨識文字長度是否接近題目估算，並非真正的聲學節奏檢測。</div><div><b>總分：'+total+'/100 分</b></div><div style="margin-top:8px"><b>分數解讀</b>：90–100 優秀；80–89 良好；70–79 尚可；60–69 需加強；0–59 建議放慢速度重練。</div>';
  $('transcript').textContent='系統辨識內容：'+t+'。注意：目前評分根據語音轉文字與錄音時間估算，不能直接判斷每個字的聲調、咬字或實際發音品質。';
  $('result').classList.add('show');$('notice').textContent='評分完成。各項分數與評分標準已列出。';
  const h=getScores();h.unshift({title:$('title').textContent,score:total,accuracy:acc,time:new Date().toLocaleString('zh-TW')});try{localStorage.setItem('tw_history',JSON.stringify(h.slice(0,50)))}catch(e){}board();
