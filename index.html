@@ -128,11 +128,20 @@ async function transcribeRecordedBlob(blob){
 }
 async function finishAfterRecognition(blob){
  try{
-  const whisperText=await transcribeRecordedBlob(blob);
+  // On iPhone, prefer the browser's live transcript first. Loading Whisper WASM/model
+  // immediately can consume too much memory and cause Safari to reload the page.
   const native=nativeText.trim();
   const target=norm($('text').textContent);
-  const whisperAcc=sim(target,norm(whisperText));
+  if(native && sim(target,norm(native))>=25){
+   showHeard(native);$('spoken').value=native;
+   $('notice').textContent='已取得手機語音辨識結果，正在評分…';
+   grade(native);
+   return;
+  }
+  $('notice').textContent='手機辨識結果不足，改用本機模型辨識錄音…';
+  const whisperText=await transcribeRecordedBlob(blob);
   const nativeAcc=native?sim(target,norm(native)):-1;
+  const whisperAcc=sim(target,norm(whisperText));
   const useNative=nativeAcc>whisperAcc;
   const t=useNative?native:whisperText;
   showHeard(t);$('spoken').value=t;
@@ -144,15 +153,15 @@ async function finishAfterRecognition(blob){
   }else if(alt){alt.style.display='none';}
   if(Math.max(whisperAcc,nativeAcc)<25){
    $('manual').classList.add('show');
-   $('notice').textContent='辨識結果與題目差異太大，系統暫不評分，避免給出誤導分數。請修正下方辨識文字後按「送出評分」。';
+   $('notice').textContent='辨識結果與題目差異太大，暫不評分。請修正下方文字後按「送出評分」。';
    $('transcript').textContent='辨識文字與題目相似度：'+Math.max(0,whisperAcc,nativeAcc)+'%。';
    return;
   }
-  $('notice').textContent=(useNative?'採用手機語音辨識':'採用 Whisper 本機辨識')+'（依題目相似度選擇），正在評分…';
+  $('notice').textContent='已選擇與題目較接近的辨識結果，正在評分…';
   grade(t);
  }catch(e){
   showHeard('（辨識失敗，沒有取得文字）');$('manual').classList.add('show');
-  $('notice').textContent='自動辨識失敗：'+(e&&e.message?e.message:'模型載入或辨識錯誤')+'。請確認錄音回放是否有完整聲音。';
+  $('notice').textContent='自動辨識失敗：'+(e&&e.message?e.message:'模型載入或辨識錯誤')+'。請確認錄音回放是否完整，或手動修正文字。';
   $('transcript').textContent='辨識錯誤詳情：'+String(e&&e.message||e).slice(0,300);
  }finally{$('record').disabled=false;$('record').textContent='🎙️ 開始錄音';isRecording=false;}
 }
