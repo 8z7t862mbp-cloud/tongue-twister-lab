@@ -57,7 +57,10 @@ function cleanup(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=nul
 function manual(msg){$('manual').classList.add('show');$('notice').textContent=msg;}
 function stop(){ stoppedAt=Date.now();$('record').disabled=true;$('notice').textContent='錄音結束，準備進行裝置端中文語音辨識…';try{if(recorder&&recorder.state!=='inactive')recorder.stop();else cleanup()}catch(e){cleanup();$('notice').textContent='停止錄音失敗，請再試一次。';}}
 let whisperPipeline=null,whisperLoading=null;
-async function getWhisper(){if(whisperPipeline)return whisperPipeline;if(whisperLoading)return whisperLoading;whisperLoading=(async()=>{$('notice').textContent='首次使用需下載較完整的中文辨識模型（下載時間較長），請保持網路並稍候…';const lib=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');whisperPipeline=await lib.pipeline('automatic-speech-recognition','Xenova/whisper-base',{dtype:'q8',chunk_length_s:20,stride_length_s:4,progress_callback:p=>{if(p&&p.status==='progress'&&p.total)$('notice').textContent='正在下載中文辨識模型 '+Math.round(p.loaded/p.total*100)+'%…';}});return whisperPipeline;})();try{return await whisperLoading}catch(e){whisperLoading=null;throw e;}}
+async function getWhisper(){if(whisperPipeline)return whisperPipeline;if(whisperLoading)return whisperLoading;whisperLoading=(async()=>{$('notice').textContent='首次使用需下載較完整的中文辨識模型（下載時間較長），請保持網路並稍候…';const lib=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');
+// Use the compatible single-thread WASM path on iOS Safari/GitHub Pages.
+try{lib.env.backends.onnx.wasm.numThreads=1;lib.env.backends.onnx.wasm.proxy=false;}catch(e){}
+whisperPipeline=await lib.pipeline('automatic-speech-recognition','Xenova/whisper-base',{dtype:'q8',progress_callback:p=>{if(!p)return;if(p.status==='progress'&&p.total)$('notice').textContent='正在下載中文辨識模型 '+Math.round(p.loaded/p.total*100)+'%…';else if(p.status==='initiate')$('notice').textContent='正在初始化語音辨識模型…';}});return whisperPipeline;})();try{return await whisperLoading}catch(e){whisperLoading=null;throw e;}}
 async function transcribeRecordedBlob(blob){
  if(!blob||blob.size<1000)throw new Error('錄音太短或沒有錄到聲音。');
  $('record').disabled=true;$('record').textContent='辨識中…';$('notice').textContent='正在載入裝置端中文辨識模型…';
@@ -77,6 +80,9 @@ async function transcribeRecordedBlob(blob){
   if(first<0||last-first<audio.sampleRate*0.35)throw new Error('沒有偵測到足夠長的語音，請靠近麥克風再唸一次。');
   const margin=Math.floor(audio.sampleRate*0.25),from=Math.max(0,first-margin),to=Math.min(mono.length,last+margin);
   let voiced=mono.slice(from,to);
+  // Normalize speech volume before inference, without amplifying quiet noise excessively.
+  let voicedPeak=0;for(let i=0;i<voiced.length;i++)voicedPeak=Math.max(voicedPeak,Math.abs(voiced[i]));
+  if(voicedPeak>0.0001){const gain=Math.min(8,0.85/voicedPeak);for(let i=0;i<voiced.length;i++)voiced[i]=Math.max(-1,Math.min(1,voiced[i]*gain));}
   let samples=voiced;
   if(audio.sampleRate!==16000){
    const n=Math.floor(voiced.length*16000/audio.sampleRate),out=new Float32Array(n),ratio=audio.sampleRate/16000;
